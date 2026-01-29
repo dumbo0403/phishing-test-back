@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from datetime import datetime
 import os
@@ -24,6 +24,25 @@ def write_text():
         f.write(f"[{timestamp}] {text} | IP={ip} | UA={ua}\n")
 
     return jsonify({"status": "saved"})
+
+
+# 🔽 DOWNLOAD ENDPOINT
+@app.route("/download", methods=["GET"])
+def download_file():
+    if not os.path.exists(FILE_PATH):
+        return "No data yet", 404
+
+    with open(FILE_PATH, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return Response(
+        content,
+        mimetype="text/plain",
+        headers={
+            "Content-Disposition": "attachment; filename=data.txt"
+        }
+    )
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
